@@ -1,0 +1,12 @@
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\bin\Debug\KeyAuth VB.exe.config
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\bin\Debug\KeyAuth VB.exe
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\bin\Debug\KeyAuth VB.pdb
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\bin\Debug\KeyAuth VB.xml
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth VB.vbprojAssemblyReference.cache
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth_VB.Form1.resources
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth_VB.Resources.resources
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth VB.vbproj.GenerateResource.cache
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth VB.vbproj.CoreCompileInputs.cache
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth VB.exe
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth VB.xml
+C:\Users\richa\source\repos\KeyAuth VB\KeyAuth VB\obj\Debug\KeyAuth VB.pdb
