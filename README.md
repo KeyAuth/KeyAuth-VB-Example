@@ -1,6 +1,8 @@
 # KeyAuth-VB-Example
 KeyAuth Visual Basic Example For The https://keyauth.com Authentication system.
 
+Credits to Duck!#6969 for making
+
 Change 3 strings in Form1.vb and you're ready.
 
 What is KeyAuth?
