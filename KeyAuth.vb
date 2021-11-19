@@ -27,7 +27,7 @@ Namespace KeyAuth
             Me.version = version
         End Sub
 
-
+        Public sessionid, enckey As String
 #Region "structures"
         <DataContract>
         Private Class response_structure
@@ -37,6 +37,8 @@ Namespace KeyAuth
             Public Property response As String
             <DataMember>
             Public Property message As String
+            <DataMember>
+            Public Property sessionid As String
             <DataMember(IsRequired:=False, EmitDefaultValue:=False)>
             Public Property info As user_data_structure
         End Class
@@ -54,10 +56,13 @@ Namespace KeyAuth
 #End Region
 
         Public Sub init()
-            Dim init_iv = sha256(iv_key()) ' can be changed to whatever you want
+            enckey = sha256(iv_key())
+            Dim init_iv = sha256(iv_key())
             Dim values_to_upload = New NameValueCollection From {
                             {"type", byte_arr_to_str(Encoding.Default.GetBytes("init"))},
+                            {"ver", encrypt(version, secret, init_iv)},
                             {"hash", checksum(Process.GetCurrentProcess().MainModule.FileName)},
+                            {"enckey", encrypt(enckey, secret, init_iv)},
                             {"name", byte_arr_to_str(Encoding.Default.GetBytes(name))},
                             {"ownerid", byte_arr_to_str(Encoding.Default.GetBytes(ownerid))},
                             {"init_iv", init_iv}
@@ -70,23 +75,25 @@ Namespace KeyAuth
                 MessageBox.Show(json.message)
                 Environment.Exit(0)
             Else
-                ' optional success message
+                sessionid = json.sessionid
             End If
         End Sub
 
-        Public Function login(ByVal key As String, ByVal Optional hwid As String = Nothing) As Boolean
-            If Equals(hwid, Nothing) Then hwid = WindowsIdentity.GetCurrent().User.Value
+        Public Function login(ByVal username As String, ByVal pass As String) As Boolean
+            Dim hwid = WindowsIdentity.GetCurrent().User.Value
             Dim init_iv = sha256(iv_key()) ' can be changed to whatever you want
             Dim values_to_upload = New NameValueCollection From {
                             {"type", byte_arr_to_str(Encoding.Default.GetBytes("login"))},
-                            {"key", encrypt(key, secret, init_iv)},
-                            {"hwid", encrypt(hwid, secret, init_iv)},
+                            {"username", encrypt(username, enckey, init_iv)},
+                            {"pass", encrypt(pass, enckey, init_iv)},
+                            {"hwid", encrypt(hwid, enckey, init_iv)},
+                            {"sessionid", byte_arr_to_str(Encoding.Default.GetBytes(sessionid))},
                             {"name", byte_arr_to_str(Encoding.Default.GetBytes(name))},
                             {"ownerid", byte_arr_to_str(Encoding.Default.GetBytes(ownerid))},
                             {"init_iv", init_iv}
                         }
             Dim response = req(values_to_upload)
-            response = decrypt(response, secret, init_iv)
+            response = decrypt(response, enckey, init_iv)
             Dim json = response_decoder.string_to_generic(Of response_structure)(response)
 
             If Not json.success Then
@@ -97,20 +104,78 @@ Namespace KeyAuth
                 Return True
             End If
         End Function
-
-        Public Sub log(ByVal message As String)
+        Public Function register(ByVal username As String, ByVal pass As String, ByVal key As String) As Boolean
+            Dim hwid = WindowsIdentity.GetCurrent().User.Value
             Dim init_iv = sha256(iv_key()) ' can be changed to whatever you want
             Dim values_to_upload = New NameValueCollection From {
-                            {"type", byte_arr_to_str(Encoding.Default.GetBytes("log"))},
-                            {"key", encrypt(user_data.key, secret, init_iv)},
-                            {"message", encrypt(message, secret, init_iv)},
+                            {"type", byte_arr_to_str(Encoding.Default.GetBytes("register"))},
+                            {"username", encrypt(username, enckey, init_iv)},
+                            {"pass", encrypt(pass, enckey, init_iv)},
+                            {"key", encrypt(key, enckey, init_iv)},
+                            {"hwid", encrypt(hwid, enckey, init_iv)},
+                            {"sessionid", byte_arr_to_str(Encoding.Default.GetBytes(sessionid))},
                             {"name", byte_arr_to_str(Encoding.Default.GetBytes(name))},
                             {"ownerid", byte_arr_to_str(Encoding.Default.GetBytes(ownerid))},
                             {"init_iv", init_iv}
                         }
-            req(values_to_upload)
-        End Sub
+            Dim response = req(values_to_upload)
+            response = decrypt(response, enckey, init_iv)
+            Dim json = response_decoder.string_to_generic(Of response_structure)(response)
 
+            If Not json.success Then
+                MessageBox.Show(json.message)
+                Return False
+            Else
+                load_user_data(json.info)
+                Return True
+            End If
+        End Function
+        Public Sub upgrade(ByVal username As String, ByVal key As String)
+            Dim hwid = WindowsIdentity.GetCurrent().User.Value
+            Dim init_iv = sha256(iv_key()) ' can be changed to whatever you want
+            Dim values_to_upload = New NameValueCollection From {
+                            {"type", byte_arr_to_str(Encoding.Default.GetBytes("upgrade"))},
+                            {"username", encrypt(username, enckey, init_iv)},
+                            {"key", encrypt(key, enckey, init_iv)},
+                            {"sessionid", byte_arr_to_str(Encoding.Default.GetBytes(sessionid))},
+                            {"name", byte_arr_to_str(Encoding.Default.GetBytes(name))},
+                            {"ownerid", byte_arr_to_str(Encoding.Default.GetBytes(ownerid))},
+                            {"init_iv", init_iv}
+                        }
+            Dim response = req(values_to_upload)
+            response = decrypt(response, enckey, init_iv)
+            Dim json = response_decoder.string_to_generic(Of response_structure)(response)
+
+            If Not json.success Then
+                MessageBox.Show(json.message)
+            Else
+                MessageBox.Show(json.message)
+            End If
+        End Sub
+        Public Function license(ByVal key As String) As Boolean
+            Dim hwid = WindowsIdentity.GetCurrent().User.Value
+            Dim init_iv = sha256(iv_key()) ' can be changed to whatever you want
+            Dim values_to_upload = New NameValueCollection From {
+                            {"type", byte_arr_to_str(Encoding.Default.GetBytes("license"))},
+                            {"key", encrypt(key, enckey, init_iv)},
+                            {"hwid", encrypt(hwid, enckey, init_iv)},
+                            {"sessionid", byte_arr_to_str(Encoding.Default.GetBytes(sessionid))},
+                            {"name", byte_arr_to_str(Encoding.Default.GetBytes(name))},
+                            {"ownerid", byte_arr_to_str(Encoding.Default.GetBytes(ownerid))},
+                            {"init_iv", init_iv}
+                        }
+            Dim response = req(values_to_upload)
+            response = decrypt(response, enckey, init_iv)
+            Dim json = response_decoder.string_to_generic(Of response_structure)(response)
+
+            If Not json.success Then
+                MessageBox.Show(json.message)
+                Return False
+            Else
+                load_user_data(json.info)
+                Return True
+            End If
+        End Function
         Public Shared Function checksum(ByVal filename As String) As String
             Dim result As String
 
@@ -130,16 +195,16 @@ Namespace KeyAuth
 
                 Using client As WebClient = New WebClient()
                     client.Headers("User-Agent") = "KeyAuth"
-                    ServicePointManager.ServerCertificateValidationCallback = AddressOf others.pin_public_key
-                    Dim raw_response = client.UploadValues("https://keyauth.com/api/v2/", post_data)
-                    ServicePointManager.ServerCertificateValidationCallback = Function(send, certificate, chain, sslPolicyErrors) True
+                    ' ServicePointManager.ServerCertificateValidationCallback = AddressOf others.pin_public_key
+                    Dim raw_response = client.UploadValues("https://keyauth.win/api/1.0/", post_data)
+                    ' ServicePointManager.ServerCertificateValidationCallback = Function(send, certificate, chain, sslPolicyErrors) True
                     Return Encoding.Default.GetString(raw_response)
                 End Using
 
             Catch
-                MessageBox.Show("SSL Pin Error. Please try again with apps that modify network activity closed/disabled.")
+                MessageBox.Show("Connection error")
                 Environment.Exit(0)
-                Return "lmao"
+                Return ""
             End Try
         End Function
 
