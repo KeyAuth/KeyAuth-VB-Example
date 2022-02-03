@@ -4,9 +4,9 @@ Public Class Form1
         KeyAuthApp.init()
         Label2.Visible = False
     End Sub
-    Private Shared name As String = "example"
-    Private Shared ownerid As String = "oVXxM3uu77"
-    Private Shared secret As String = "db40d586f4b189e04e5c18c3c94b7e72221be3f6551995adc05236948d1762bc"
+    Private Shared name As String = "" ' Application name, found in dashboard
+    Private Shared ownerid As String = "" ' Ownerid, found in account settings of dashboard
+    Private Shared secret As String = "" ' Application name, found in dashboard. It's the blurred text beneath application name
     Private Shared version As String = "1.0"
     Public Shared KeyAuthApp As api = New api(name, ownerid, secret, version)
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
@@ -27,7 +27,7 @@ Public Class Form1
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        If KeyAuthApp.register(TextBox1.Text, TextBox2.Text, TextBox3.Visible) Then
+        If KeyAuthApp.register(TextBox1.Text, TextBox2.Text, TextBox3.Text) Then
             Button1.Visible = False
             Button2.Visible = False
             Button3.Visible = False
