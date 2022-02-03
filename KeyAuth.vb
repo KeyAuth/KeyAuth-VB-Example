@@ -38,6 +38,8 @@ Namespace KeyAuth
             <DataMember>
             Public Property message As String
             <DataMember>
+            Public Property download As String
+            <DataMember>
             Public Property sessionid As String
             <DataMember(IsRequired:=False, EmitDefaultValue:=False)>
             Public Property info As user_data_structure
@@ -71,7 +73,10 @@ Namespace KeyAuth
             response = decrypt(response, secret, init_iv)
             Dim json = response_decoder.string_to_generic(Of response_structure)(response)
 
-            If Not json.success Then
+            If json.message = "invalidver" Then
+                Process.Start(json.download)
+                Environment.Exit(0)
+            ElseIf Not json.success Then
                 MessageBox.Show(json.message)
                 Environment.Exit(0)
             Else
