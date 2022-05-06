@@ -1,3 +1,9 @@
+# Archived:
+
+Due to the low usage ofthe VB.net SDK, and the redundancy of it, it has been archived.
+
+You may convert the C# SDK to VB.net using https://github.com/dnSpy/dnSpy 
+
 # KeyAuth-VB-Example
 KeyAuth Visual Basic Example For The https://keyauth.win Authentication system.
 
